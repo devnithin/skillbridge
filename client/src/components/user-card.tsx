@@ -2,7 +2,6 @@
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { type User, type Skill } from "@shared/schema";
 import {
   Dialog,
   DialogContent,
@@ -10,13 +9,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Mail, Phone, MapPin, Award, Briefcase } from "lucide-react";
+import { Mail, Phone, Award } from "lucide-react";
 import SkillCard from "./skill-card";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 
-export default function UserCard({ user }: { user: User }) {
-  const { data: skills = [], isLoading } = useQuery<Skill[]>({
+export default function UserCard({ user }: { user: any }) {
+  const { data: skills = [], isLoading } = useQuery({
     queryKey: [`/api/users/${user.id}/skills`],
   });
 
@@ -35,7 +34,7 @@ export default function UserCard({ user }: { user: User }) {
 
       <Dialog>
         <DialogTrigger asChild>
-          <Button className="w-full">View Profile</Button>
+          <Button variant="outline" className="w-full">View Profile</Button>
         </DialogTrigger>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -81,7 +80,7 @@ export default function UserCard({ user }: { user: User }) {
               ) : (
                 <div className="grid gap-2">
                   {skills.length > 0 ? (
-                    skills.map((skill) => (
+                    skills.map((skill: any) => (
                       <SkillCard key={skill.id} skill={skill} />
                     ))
                   ) : (
