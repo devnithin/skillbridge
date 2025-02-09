@@ -68,16 +68,24 @@ export default function HomePage() {
               </Select>
             </div>
 
-            <div className="flex items-end">
-              <Button
-                onClick={() =>
-                  setSearchParams((p) => ({ ...p, isTeaching: !p.isTeaching }))
-                }
-                variant={searchParams.isTeaching ? "default" : "outline"}
-                className="w-full"
-              >
-                {searchParams.isTeaching ? "Teaching" : "Learning"}
-              </Button>
+            <div>
+              <Label>Looking for</Label>
+              <div className="flex gap-2 mt-0.5">
+                <Button
+                  onClick={() => setSearchParams((p) => ({ ...p, isTeaching: true }))}
+                  variant={searchParams.isTeaching ? "default" : "outline"}
+                  className="flex-1"
+                >
+                  Teachers
+                </Button>
+                <Button
+                  onClick={() => setSearchParams((p) => ({ ...p, isTeaching: false }))}
+                  variant={!searchParams.isTeaching ? "default" : "outline"}
+                  className="flex-1"
+                >
+                  Learners
+                </Button>
+              </div>
             </div>
           </div>
         </div>

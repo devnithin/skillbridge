@@ -110,14 +110,24 @@ export default function ProfilePage() {
 
             <div>
               <Label>Type</Label>
-              <Button
-                type="button"
-                onClick={() => form.setValue("isTeaching", !form.watch("isTeaching"))}
-                variant={form.watch("isTeaching") ? "default" : "outline"}
-                className="w-full mt-0.5"
-              >
-                {form.watch("isTeaching") ? "Teaching" : "Learning"}
-              </Button>
+              <div className="flex gap-2 mt-0.5">
+                <Button
+                  type="button"
+                  onClick={() => form.setValue("isTeaching", true)}
+                  variant={form.watch("isTeaching") ? "default" : "outline"}
+                  className="flex-1"
+                >
+                  Teaching
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => form.setValue("isTeaching", false)}
+                  variant={!form.watch("isTeaching") ? "default" : "outline"}
+                  className="flex-1"
+                >
+                  Learning
+                </Button>
+              </div>
             </div>
 
             <div>
