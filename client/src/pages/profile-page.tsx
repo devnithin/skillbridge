@@ -53,34 +53,10 @@ export default function ProfilePage() {
       <div className="max-w-4xl mx-auto">
         <div className="bg-card rounded-xl shadow-lg border-primary/10 p-8 mb-8">
           <div className="flex items-center gap-6 mb-6">
-            <div className="relative group">
-              <Avatar className="h-24 w-24">
-                <AvatarImage src={user?.imageUrl || user?.avatar || undefined} />
-                <AvatarFallback>{user?.fullName[0]}</AvatarFallback>
-              </Avatar>
-              <label className="absolute inset-0 flex items-center justify-center bg-black/50 text-white opacity-0 group-hover:opacity-100 rounded-full cursor-pointer transition-opacity">
-                <input 
-                  type="file" 
-                  className="hidden" 
-                  accept="image/*"
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-                    
-                    const formData = new FormData();
-                    formData.append("image", file);
-                    
-                    await fetch(`/api/users/${user!.id}/image`, {
-                      method: "POST",
-                      body: formData,
-                    });
-                    
-                    queryClient.invalidateQueries({ queryKey: ["/api/user"] });
-                  }}
-                />
-                Change Photo
-              </label>
-            </div>
+            <Avatar className="h-24 w-24">
+              <AvatarImage src={user?.avatar} />
+              <AvatarFallback>{user?.fullName[0]}</AvatarFallback>
+            </Avatar>
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-[#283E4A]">{user?.fullName}</h1>
               <div className="relative group">

@@ -4,25 +4,7 @@ import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { insertSkillSchema } from "@shared/schema";
 import { z } from "zod";
-import multer from "multer";
-import path from "path";
 
-const upload = multer({
-  storage: multer.diskStorage({
-    destination: "./uploads/",
-    filename: (req, file, cb) => {
-      cb(null, Date.now() + path.extname(file.originalname));
-    }
-  }),
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png|gif/;
-    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = allowedTypes.test(file.mimetype);
-    if (extname && mimetype) cb(null, true);
-    else cb(new Error("Only images allowed"));
-  }
-});
 
 export function registerRoutes(app: Express): Server {
   setupAuth(app);
@@ -43,18 +25,7 @@ export function registerRoutes(app: Express): Server {
     res.json(user);
   });
 
-  app.post("/api/users/:id/image", upload.single("image"), async (req, res) => {
-    if (!req.isAuthenticated() || req.user.id !== parseInt(req.params.id)) {
-      return res.status(403).send("Unauthorized");
-    }
-    if (!req.file) return res.status(400).send("No file uploaded");
-    
-    const imageUrl = `/uploads/${req.file.filename}`;
-    const user = await storage.updateUser(parseInt(req.params.id), { imageUrl });
-    res.json(user);
-  });
-
-  app.use("/uploads", express.static("uploads"));
+  
 
   // Get user skills
   app.get("/api/users/:id/skills", async (req, res) => {
