@@ -1,6 +1,7 @@
 import { users, skills, type User, type InsertUser, type Skill } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, or, asc } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { pool } from "./db";
@@ -21,6 +22,7 @@ export interface IStorage {
   sessionStore: session.Store;
   getMessages(userId1: number, userId2: number): Promise<Message[]>;
   createMessage(message: InsertMessage): Promise<Message>;
+  getConversations(userId: number): Promise<User[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -90,17 +92,17 @@ export class DatabaseStorage implements IStorage {
             query.category && eq(skills.category, query.category),
             typeof query.isTeaching === "boolean" &&
               eq(skills.isTeaching, query.isTeaching),
-          ].filter(Boolean)
+          ].filter(Boolean) as any[]
         )
       );
 
-    const userIds = [...new Set(matchingSkills.map((s) => s.userId))];
+    const userIds = matchingSkills.map(s => s.userId);
     if (userIds.length === 0) return [];
 
-    return db.select().from(users).where(
-      // @ts-ignore - the type system doesn't understand that userIds is not empty
-      userIds.map((id) => eq(users.id, id))
-    );
+    return db
+      .select()
+      .from(users)
+      .where(or(...userIds.map(id => eq(users.id, id))));
   }
 
   async getMessages(userId1: number, userId2: number): Promise<Message[]> {
@@ -125,6 +127,20 @@ export class DatabaseStorage implements IStorage {
   async createMessage(message: InsertMessage): Promise<Message> {
     const [created] = await db.insert(messages).values(message).returning();
     return created;
+  }
+
+  async getConversations(userId: number): Promise<User[]> {
+    // Using raw SQL for the DISTINCT operation since drizzle-orm doesn't support it directly
+    const result = await db.execute(sql`
+      SELECT DISTINCT u.*
+      FROM users u
+      INNER JOIN messages m
+      ON (m.sender_id = u.id AND m.receiver_id = ${userId})
+      OR (m.receiver_id = u.id AND m.sender_id = ${userId})
+      WHERE u.id != ${userId}
+    `);
+
+    return result.rows as User[];
   }
 }
 

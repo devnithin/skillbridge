@@ -81,24 +81,39 @@ export function registerRoutes(app: Express): Server {
     res.json(messages);
   });
 
+  // Get conversations
+  app.get("/api/conversations", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(403).send("Unauthorized");
+    const conversations = await storage.getConversations(req.user.id);
+    res.json(conversations);
+  });
+
   const httpServer = createServer(app);
 
   // Setup WebSocket server
   const wss = new WebSocketServer({ server: httpServer, path: "/ws" });
 
   wss.on("connection", (ws: WebSocketWithUser) => {
+    console.log("New WebSocket connection established");
+
     ws.on("message", async (data: string) => {
       try {
         const message = JSON.parse(data);
+        console.log("Received WebSocket message:", message.type);
 
         if (message.type === "auth") {
           ws.userId = message.userId;
           connections.set(message.userId, ws);
+          console.log(`User ${message.userId} authenticated via WebSocket`);
           return;
         }
 
         if (!ws.userId) {
-          ws.send(JSON.stringify({ type: "error", message: "Not authenticated" }));
+          console.error("Unauthenticated WebSocket message:", message);
+          ws.send(JSON.stringify({ 
+            type: "error", 
+            message: "Not authenticated" 
+          }));
           return;
         }
 
@@ -110,6 +125,7 @@ export function registerRoutes(app: Express): Server {
           });
 
           const savedMessage = await storage.createMessage(parsedMessage);
+          console.log(`Message saved: ${savedMessage.id} from ${savedMessage.senderId} to ${savedMessage.receiverId}`);
 
           // Send to receiver if online
           const receiverWs = connections.get(message.receiverId);
@@ -128,12 +144,17 @@ export function registerRoutes(app: Express): Server {
         }
       } catch (err) {
         const error = err as Error;
-        ws.send(JSON.stringify({ type: "error", message: error.message }));
+        console.error("WebSocket error:", error);
+        ws.send(JSON.stringify({ 
+          type: "error", 
+          message: error.message 
+        }));
       }
     });
 
     ws.on("close", () => {
       if (ws.userId) {
+        console.log(`User ${ws.userId} WebSocket connection closed`);
         connections.delete(ws.userId);
       }
     });

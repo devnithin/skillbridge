@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User } from "lucide-react";
+import { LogOut, MessageSquare, Search, User } from "lucide-react";
 
 export default function NavBar() {
   const { user, logoutMutation } = useAuth();
@@ -26,17 +26,29 @@ export default function NavBar() {
 
           <nav className="flex items-center gap-6">
             <Link href="/">
-              <Button variant={location === "/" ? "default" : "ghost"}>Search</Button>
+              <Button variant={location === "/" ? "default" : "ghost"}>
+                <Search className="h-4 w-4 mr-2" />
+                Search
+              </Button>
+            </Link>
+            <Link href="/messages">
+              <Button variant={location === "/messages" ? "default" : "ghost"}>
+                <MessageSquare className="h-4 w-4 mr-2" />
+                Messages
+              </Button>
             </Link>
             <Link href="/profile">
-              <Button variant={location === "/profile" ? "default" : "ghost"}>Profile</Button>
+              <Button variant={location === "/profile" ? "default" : "ghost"}>
+                <User className="h-4 w-4 mr-2" />
+                Profile
+              </Button>
             </Link>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="rounded-full">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src={user.avatar} />
+                    <AvatarImage src={user.avatar || undefined} />
                     <AvatarFallback>{user.fullName[0]}</AvatarFallback>
                   </Avatar>
                 </Button>

@@ -8,6 +8,7 @@ import NotFound from "@/pages/not-found";
 import AuthPage from "@/pages/auth-page";
 import HomePage from "@/pages/home-page";
 import ProfilePage from "@/pages/profile-page";
+import MessagesPage from "@/pages/messages-page";
 import NavBar from "@/components/nav-bar";
 
 function Router() {
@@ -17,6 +18,7 @@ function Router() {
       <Switch>
         <ProtectedRoute path="/" component={HomePage} />
         <ProtectedRoute path="/profile" component={ProfilePage} />
+        <ProtectedRoute path="/messages" component={MessagesPage} />
         <Route path="/auth" component={AuthPage} />
         <Route component={NotFound} />
       </Switch>
