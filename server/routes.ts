@@ -1,9 +1,13 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { setupAuth } from "./auth";
-import { insertSkillSchema } from "@shared/schema";
+import { insertSkillSchema, insertMessageSchema } from "@shared/schema";
 import { z } from "zod";
+
+type WebSocketWithUser = WebSocket & { userId?: number };
+const connections = new Map<number, WebSocketWithUser>();
 
 export function registerRoutes(app: Express): Server {
   setupAuth(app);
@@ -70,6 +74,70 @@ export function registerRoutes(app: Express): Server {
     res.json(users);
   });
 
+  // Add message routes
+  app.get("/api/messages/:userId", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(403).send("Unauthorized");
+    const messages = await storage.getMessages(req.user.id, parseInt(req.params.userId));
+    res.json(messages);
+  });
+
   const httpServer = createServer(app);
+
+  // Setup WebSocket server
+  const wss = new WebSocketServer({ server: httpServer, path: "/ws" });
+
+  wss.on("connection", (ws: WebSocketWithUser) => {
+    ws.on("message", async (data: string) => {
+      try {
+        const message = JSON.parse(data);
+
+        if (message.type === "auth") {
+          ws.userId = message.userId;
+          connections.set(message.userId, ws);
+          return;
+        }
+
+        if (!ws.userId) {
+          ws.send(JSON.stringify({ type: "error", message: "Not authenticated" }));
+          return;
+        }
+
+        if (message.type === "message") {
+          const parsedMessage = insertMessageSchema.parse({
+            senderId: ws.userId,
+            receiverId: message.receiverId,
+            content: message.content,
+          });
+
+          const savedMessage = await storage.createMessage(parsedMessage);
+
+          // Send to receiver if online
+          const receiverWs = connections.get(message.receiverId);
+          if (receiverWs?.readyState === WebSocket.OPEN) {
+            receiverWs.send(JSON.stringify({
+              type: "message",
+              message: savedMessage,
+            }));
+          }
+
+          // Send confirmation to sender
+          ws.send(JSON.stringify({
+            type: "message_sent",
+            message: savedMessage,
+          }));
+        }
+      } catch (err) {
+        const error = err as Error;
+        ws.send(JSON.stringify({ type: "error", message: error.message }));
+      }
+    });
+
+    ws.on("close", () => {
+      if (ws.userId) {
+        connections.delete(ws.userId);
+      }
+    });
+  });
+
   return httpServer;
 }

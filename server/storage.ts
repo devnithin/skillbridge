@@ -1,9 +1,10 @@
 import { users, skills, type User, type InsertUser, type Skill } from "@shared/schema";
 import { db } from "./db";
-import { eq, and } from "drizzle-orm";
+import { eq, and, or, asc } from "drizzle-orm";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { pool } from "./db";
+import { messages, type Message, type InsertMessage } from "@shared/schema";
 
 const PostgresSessionStore = connectPg(session);
 
@@ -18,6 +19,8 @@ export interface IStorage {
   deleteSkill(id: number): Promise<void>;
   searchUsers(query: { skill: string; category?: string; isTeaching?: boolean }): Promise<User[]>;
   sessionStore: session.Store;
+  getMessages(userId1: number, userId2: number): Promise<Message[]>;
+  createMessage(message: InsertMessage): Promise<Message>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -98,6 +101,30 @@ export class DatabaseStorage implements IStorage {
       // @ts-ignore - the type system doesn't understand that userIds is not empty
       userIds.map((id) => eq(users.id, id))
     );
+  }
+
+  async getMessages(userId1: number, userId2: number): Promise<Message[]> {
+    return db
+      .select()
+      .from(messages)
+      .where(
+        or(
+          and(
+            eq(messages.senderId, userId1),
+            eq(messages.receiverId, userId2)
+          ),
+          and(
+            eq(messages.senderId, userId2),
+            eq(messages.receiverId, userId1)
+          )
+        )
+      )
+      .orderBy(asc(messages.createdAt));
+  }
+
+  async createMessage(message: InsertMessage): Promise<Message> {
+    const [created] = await db.insert(messages).values(message).returning();
+    return created;
   }
 }
 
