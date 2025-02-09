@@ -15,7 +15,7 @@ export function useChat(receiverId: number) {
 
     // Fetch existing messages
     fetch(`/api/messages/${receiverId}`, {
-      credentials: "include" // Ensure cookies are sent
+      credentials: "include"
     })
       .then((res) => {
         if (!res.ok) throw new Error(`Failed to fetch messages: ${res.status}`);
@@ -31,50 +31,71 @@ export function useChat(receiverId: number) {
         });
       });
 
-    // Setup WebSocket connection
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const wsUrl = `${protocol}//${window.location.host}/ws`;
-    const ws = new WebSocket(wsUrl);
+    // Setup WebSocket connection with reconnection logic
+    function connectWebSocket() {
+      const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+      const wsUrl = `${protocol}//${window.location.host}/ws`;
+      const ws = new WebSocket(wsUrl);
 
-    ws.onopen = () => {
-      console.log("WebSocket connected");
-      setIsConnected(true);
-      ws.send(JSON.stringify({ type: "auth", userId: user.id }));
-    };
+      ws.onopen = () => {
+        console.log("WebSocket connected");
+        setIsConnected(true);
+        ws.send(JSON.stringify({ type: "auth", userId: user.id }));
+      };
 
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.type === "message" || data.type === "message_sent") {
-        setMessages((prev) => [...prev, data.message]);
-      } else if (data.type === "error") {
-        console.error("WebSocket error:", data.message);
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          console.log("Received WebSocket message:", data);
+          if (data.type === "message" || data.type === "message_sent") {
+            const newMessage = data.message;
+            // Only add messages for this conversation
+            if (
+              (newMessage.senderId === user.id && newMessage.receiverId === receiverId) ||
+              (newMessage.senderId === receiverId && newMessage.receiverId === user.id)
+            ) {
+              setMessages((prev) => [...prev, newMessage]);
+            }
+          } else if (data.type === "error") {
+            console.error("WebSocket error:", data.message);
+            toast({
+              title: "Error",
+              description: data.message,
+              variant: "destructive",
+            });
+          }
+        } catch (error) {
+          console.error("Error parsing WebSocket message:", error);
+        }
+      };
+
+      ws.onclose = () => {
+        console.log("WebSocket disconnected, attempting to reconnect...");
+        setIsConnected(false);
+        // Attempt to reconnect after 2 seconds
+        setTimeout(connectWebSocket, 2000);
+      };
+
+      ws.onerror = (error) => {
+        console.error("WebSocket error:", error);
         toast({
-          title: "Error",
-          description: data.message,
+          title: "Connection Error",
+          description: "Failed to connect to chat. Attempting to reconnect...",
           variant: "destructive",
         });
-      }
-    };
+      };
 
-    ws.onclose = () => {
-      console.log("WebSocket disconnected");
-      setIsConnected(false);
-    };
+      setSocket(ws);
 
-    ws.onerror = (error) => {
-      console.error("WebSocket error:", error);
-      toast({
-        title: "Connection Error",
-        description: "Failed to connect to chat. Please try refreshing the page.",
-        variant: "destructive",
-      });
-    };
+      // Clean up on unmount
+      return () => {
+        ws.close();
+      };
+    }
 
-    setSocket(ws);
+    // Initial connection
+    connectWebSocket();
 
-    return () => {
-      ws.close();
-    };
   }, [user, receiverId, toast]);
 
   const sendMessage = useCallback(

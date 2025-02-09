@@ -102,9 +102,19 @@ export function registerRoutes(app: Express): Server {
         console.log("Received WebSocket message:", message.type);
 
         if (message.type === "auth") {
+          // Close any existing connections for this user
+          const existingConnection = connections.get(message.userId);
+          if (existingConnection) {
+            console.log(`Closing existing connection for user ${message.userId}`);
+            existingConnection.close();
+          }
+
           ws.userId = message.userId;
           connections.set(message.userId, ws);
           console.log(`User ${message.userId} authenticated via WebSocket`);
+
+          // Send confirmation
+          ws.send(JSON.stringify({ type: "auth_success" }));
           return;
         }
 
@@ -130,10 +140,13 @@ export function registerRoutes(app: Express): Server {
           // Send to receiver if online
           const receiverWs = connections.get(message.receiverId);
           if (receiverWs?.readyState === WebSocket.OPEN) {
+            console.log(`Sending message to receiver ${message.receiverId}`);
             receiverWs.send(JSON.stringify({
               type: "message",
               message: savedMessage,
             }));
+          } else {
+            console.log(`Receiver ${message.receiverId} is not connected`);
           }
 
           // Send confirmation to sender
@@ -155,9 +168,21 @@ export function registerRoutes(app: Express): Server {
     ws.on("close", () => {
       if (ws.userId) {
         console.log(`User ${ws.userId} WebSocket connection closed`);
-        connections.delete(ws.userId);
+        // Only remove the connection if it's the same instance
+        if (connections.get(ws.userId) === ws) {
+          connections.delete(ws.userId);
+        }
       }
     });
+
+    // Send periodic ping to keep connection alive
+    const pingInterval = setInterval(() => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.ping();
+      }
+    }, 30000);
+
+    ws.on("close", () => clearInterval(pingInterval));
   });
 
   return httpServer;
