@@ -5,7 +5,7 @@ import { sql } from "drizzle-orm";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { pool } from "./db";
-import { messages, type Message, type InsertMessage } from "@shared/schema";
+import { messagesTable, type Message, type InsertMessage } from "@shared/schema";
 
 const PostgresSessionStore = connectPg(session);
 
@@ -109,27 +109,27 @@ export class DatabaseStorage implements IStorage {
     console.log(`Getting messages between users ${userId1} and ${userId2}`);
     const messages = await db
       .select()
-      .from(messages)
+      .from(messagesTable)
       .where(
         or(
           and(
-            eq(messages.senderId, userId1),
-            eq(messages.receiverId, userId2)
+            eq(messagesTable.senderId, userId1),
+            eq(messagesTable.receiverId, userId2)
           ),
           and(
-            eq(messages.senderId, userId2),
-            eq(messages.receiverId, userId1)
+            eq(messagesTable.senderId, userId2),
+            eq(messagesTable.receiverId, userId1)
           )
         )
       )
-      .orderBy(asc(messages.createdAt));
+      .orderBy(asc(messagesTable.createdAt));
 
     console.log(`Found ${messages.length} messages`);
     return messages;
   }
 
   async createMessage(message: InsertMessage): Promise<Message> {
-    const [created] = await db.insert(messages).values(message).returning();
+    const [created] = await db.insert(messagesTable).values(message).returning();
     return created;
   }
 

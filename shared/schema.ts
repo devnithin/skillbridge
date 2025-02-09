@@ -61,7 +61,7 @@ export const proficiencyLevels = [
   "Expert"
 ] as const;
 
-export const messages = pgTable("messages", {
+export const messagesTable = pgTable("messages", {
   id: serial("id").primaryKey(),
   senderId: integer("sender_id").notNull(),
   receiverId: integer("receiver_id").notNull(),
