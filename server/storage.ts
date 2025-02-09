@@ -140,26 +140,29 @@ export class DatabaseStorage implements IStorage {
     const result = await db.execute(sql`
       WITH conversation_users AS (
         -- Get all users who have exchanged messages with this user
-        SELECT DISTINCT CASE
-          WHEN m.sender_id = ${userId} THEN m.receiver_id
-          WHEN m.receiver_id = ${userId} THEN m.sender_id
-        END as other_user_id
+        SELECT DISTINCT 
+          CASE
+            WHEN m.sender_id = ${userId} THEN m.receiver_id
+            WHEN m.receiver_id = ${userId} THEN m.sender_id
+          END as other_user_id,
+          MAX(m.created_at) as last_message_at
         FROM messages m
         WHERE m.sender_id = ${userId} OR m.receiver_id = ${userId}
+        GROUP BY 
+          CASE
+            WHEN m.sender_id = ${userId} THEN m.receiver_id
+            WHEN m.receiver_id = ${userId} THEN m.sender_id
+          END
       )
-      SELECT DISTINCT u.*
+      SELECT DISTINCT u.*, cu.last_message_at
       FROM users u
       INNER JOIN conversation_users cu ON u.id = cu.other_user_id
-      ORDER BY (
-        SELECT MAX(created_at)
-        FROM messages m
-        WHERE (m.sender_id = u.id AND m.receiver_id = ${userId})
-        OR (m.receiver_id = u.id AND m.sender_id = ${userId})
-      ) DESC
+      ORDER BY cu.last_message_at DESC;
     `);
 
     console.log(`Found ${result.rows.length} conversations for user ${userId}`);
-    return result.rows as User[];
+    // Remove the last_message_at field from the result since we only needed it for ordering
+    return result.rows.map(({ last_message_at, ...user }) => user) as User[];
   }
 }
 
