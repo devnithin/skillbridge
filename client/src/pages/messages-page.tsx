@@ -41,10 +41,11 @@ export default function MessagesPage() {
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold text-[#283E4A] mb-8">Messages</h1>
+        <h1 className="text-4xl font-bold text-primary mb-3">Messages</h1>
+        <p className="text-muted-foreground mb-8">Chat with your connections</p>
 
         <div className="grid grid-cols-[320px_1fr] gap-8">
-          <Card className="p-4 shadow-lg">
+          <Card className="p-4 shadow-lg border-primary/10">
             <h2 className="font-semibold text-lg mb-6 px-2">Conversations</h2>
             {conversations.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">

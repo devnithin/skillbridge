@@ -26,9 +26,9 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen flex">
-      <div className="flex-1 flex items-center justify-center">
-        <Card className="w-[400px]">
+    <div className="min-h-screen flex bg-gradient-to-br from-primary/5 to-primary/10">
+      <div className="flex-1 flex items-center justify-center p-4">
+        <Card className="w-[400px] shadow-xl border-primary/10">
           <Tabs defaultValue="login">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="login">Login</TabsTrigger>

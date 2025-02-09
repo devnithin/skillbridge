@@ -17,7 +17,7 @@ export default function NavBar() {
   if (!user || location === "/auth") return null;
 
   return (
-    <header className="bg-white border-b">
+    <header className="bg-background/95 backdrop-blur-sm border-b border-primary/10 sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="h-16 flex items-center justify-between">
           <Link href="/" className="text-xl font-bold text-[#0077B5]">

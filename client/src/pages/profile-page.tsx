@@ -49,9 +49,9 @@ export default function ProfilePage() {
   });
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="container mx-auto py-12 px-4">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+        <div className="bg-card rounded-xl shadow-lg border-primary/10 p-8 mb-8">
           <div className="flex items-center gap-6 mb-6">
             <Avatar className="h-24 w-24">
               <AvatarImage src={user?.avatar || undefined} />

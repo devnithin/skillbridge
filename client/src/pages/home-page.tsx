@@ -31,11 +31,12 @@ export default function HomePage() {
   });
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="container mx-auto py-12 px-4">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-[#283E4A] mb-8">Find Skilled People</h1>
+        <h1 className="text-4xl font-bold text-primary mb-3">Find Skilled People</h1>
+        <p className="text-muted-foreground mb-8">Connect with experts and learners in various fields</p>
 
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+        <div className="bg-card rounded-xl shadow-lg border-primary/10 p-8 mb-8">
           <div className="grid gap-4 md:grid-cols-[1fr_200px_auto]">
             <div>
               <Label htmlFor="skill">Skill</Label>
