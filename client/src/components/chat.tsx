@@ -21,14 +21,16 @@ export default function Chat({ receiverId, receiverName }: { receiverId: number;
   };
 
   return (
-    <div className="flex flex-col h-[400px]">
-      <div className="flex items-center justify-between p-4 border-b">
-        <h3 className="font-semibold">Chat with {receiverName}</h3>
-        {!isConnected && <Loader2 className="h-4 w-4 animate-spin" />}
+    <div className="flex flex-col h-[600px] bg-card rounded-lg shadow-lg">
+      <div className="flex items-center justify-between p-4 border-b bg-primary/5">
+        <h3 className="font-semibold text-lg flex items-center gap-2">
+          <span>Chat with {receiverName}</span>
+          {!isConnected && <Loader2 className="h-4 w-4 animate-spin text-primary" />}
+        </h3>
       </div>
 
       <ScrollArea className="flex-1 p-4">
-        <div className="space-y-4">
+        <div className="space-y-6">
           {messages.map((message) => {
             const isSender = message.senderId === user?.id;
             return (
@@ -37,14 +39,14 @@ export default function Chat({ receiverId, receiverName }: { receiverId: number;
                 className={`flex ${isSender ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                  className={`max-w-[80%] rounded-xl px-5 py-3 shadow-sm ${
                     isSender
                       ? "bg-primary text-primary-foreground"
-                      : "bg-muted"
+                      : "bg-accent"
                   }`}
                 >
-                  <p>{message.content}</p>
-                  <p className="text-xs opacity-70">
+                  <p className="leading-relaxed">{message.content}</p>
+                  <p className="text-xs mt-1 opacity-70">
                     {format(new Date(message.createdAt), "p")}
                   </p>
                 </div>
@@ -54,7 +56,7 @@ export default function Chat({ receiverId, receiverName }: { receiverId: number;
         </div>
       </ScrollArea>
 
-      <form onSubmit={handleSubmit} className="p-4 border-t flex gap-2">
+      <form onSubmit={handleSubmit} className="p-4 border-t bg-card flex gap-3">
         <Input
           value={input}
           onChange={(e) => setInput(e.target.value)}

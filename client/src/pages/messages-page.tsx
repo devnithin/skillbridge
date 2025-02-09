@@ -43,9 +43,9 @@ export default function MessagesPage() {
       <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl font-bold text-[#283E4A] mb-8">Messages</h1>
 
-        <div className="grid grid-cols-[300px_1fr] gap-6">
-          <Card className="p-4">
-            <h2 className="font-semibold mb-4">Conversations</h2>
+        <div className="grid grid-cols-[320px_1fr] gap-8">
+          <Card className="p-4 shadow-lg">
+            <h2 className="font-semibold text-lg mb-6 px-2">Conversations</h2>
             {conversations.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
                 <MessageSquare className="h-12 w-12 mb-4" />
@@ -60,8 +60,8 @@ export default function MessagesPage() {
                     <button
                       key={contact.id}
                       onClick={() => setSelectedUser(contact)}
-                      className={`w-full flex items-center gap-3 p-2 rounded-lg hover:bg-accent ${
-                        selectedUser?.id === contact.id ? "bg-accent" : ""
+                      className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors hover:bg-accent/80 ${
+                        selectedUser?.id === contact.id ? "bg-accent shadow-sm" : ""
                       }`}
                     >
                       <Avatar className="h-10 w-10">
