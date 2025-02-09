@@ -33,7 +33,7 @@ export function registerRoutes(app: Express): Server {
   // Add skill
   app.post("/api/skills", async (req, res) => {
     if (!req.isAuthenticated()) return res.status(403).send("Unauthorized");
-    
+
     const parsed = insertSkillSchema.parse(req.body);
     const skill = await storage.createSkill({
       ...parsed,
@@ -45,11 +45,11 @@ export function registerRoutes(app: Express): Server {
   // Delete skill
   app.delete("/api/skills/:id", async (req, res) => {
     if (!req.isAuthenticated()) return res.status(403).send("Unauthorized");
-    
+
     const skill = await storage.getSkill(parseInt(req.params.id));
     if (!skill) return res.status(404).send("Skill not found");
     if (skill.userId !== req.user.id) return res.status(403).send("Unauthorized");
-    
+
     await storage.deleteSkill(parseInt(req.params.id));
     res.sendStatus(204);
   });
@@ -59,7 +59,11 @@ export function registerRoutes(app: Express): Server {
     const query = z.object({
       skill: z.string(),
       category: z.string().optional(),
-      isTeaching: z.boolean().optional(),
+      isTeaching: z.preprocess(
+        // Convert string 'true'/'false' to boolean
+        (val) => val === 'true',
+        z.boolean()
+      ).optional(),
     }).parse(req.query);
 
     const users = await storage.searchUsers(query);
