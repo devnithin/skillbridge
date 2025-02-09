@@ -6,7 +6,7 @@ import { setupAuth } from "./auth";
 import { insertSkillSchema, insertMessageSchema } from "@shared/schema";
 import { z } from "zod";
 
-type WebSocketWithUser = WebSocket & { userId?: number };
+// Routes file cleaned up
 const connections = new Map<number, WebSocketWithUser>();
 
 export function registerRoutes(app: Express): Server {
