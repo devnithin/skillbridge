@@ -1,0 +1,50 @@
+Fetching conversations for user 1
+Getting conversations for user 1
+Error fetching conversations: error: column "messages.sender_id" must appear in the GROUP BY clause or be used in an aggregate function
+    at file:///C:/Users/user/Downloads/SkillBridgeConnect/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at DatabaseStorage.getConversations (C:\Users\user\Downloads\SkillBridgeConnect\server\storage.ts:134:20)
+    at <anonymous> (C:\Users\user\Downloads\SkillBridgeConnect\server\routes.ts:100:29) {
+  length: 181,
+  severity: 'ERROR',
+  code: '42803',
+  detail: undefined,
+  hint: undefined,
+  position: '81',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_agg.c',
+  line: '1439',
+  routine: 'check_ungrouped_columns_walker'
+}
+8:49:04 PM [express] GET /api/conversations 500 in 8728ms
+Fetching conversations for user 1
+Getting conversations for user 1
+Error fetching conversations: error: column "messages.sender_id" must appear in the GROUP BY clause or be used in an aggregate function
+    at file:///C:/Users/user/Downloads/SkillBridgeConnect/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at DatabaseStorage.getConversations (C:\Users\user\Downloads\SkillBridgeConnect\server\storage.ts:134:20)
+    at <anonymous> (C:\Users\user\Downloads\SkillBridgeConnect\server\routes.ts:100:29) {
+  length: 181,
+  severity: 'ERROR',
+  code: '42803',
+  detail: undefined,
+  hint: undefined,
+  position: '81',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_agg.c',
+  line: '1439',
+  routine: 'check_ungrouped_columns_walker'
