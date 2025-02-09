@@ -33,6 +33,8 @@ export function useChat(receiverId: number) {
 
     // Setup WebSocket connection with reconnection logic
     function connectWebSocket() {
+      if (!user) return;
+      
       const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
       const wsUrl = `${protocol}//${window.location.host}/ws`;
       const ws = new WebSocket(wsUrl);
@@ -87,16 +89,20 @@ export function useChat(receiverId: number) {
 
       setSocket(ws);
 
-      // Clean up on unmount
-      return () => {
-        ws.close();
-      };
+      return ws;
     }
 
-    // Initial connection
-    connectWebSocket();
+    let ws = connectWebSocket();
 
-  }, [user, receiverId, toast]);
+    // Clean up on unmount or user change
+    return () => {
+      if (ws) {
+        ws.close();
+        setIsConnected(false);
+      }
+    };
+
+  }, [user?.id, receiverId, toast]);
 
   const sendMessage = useCallback(
     (content: string) => {
