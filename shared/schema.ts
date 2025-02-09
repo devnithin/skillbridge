@@ -69,11 +69,11 @@ export const messagesTable = pgTable("messages", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const insertMessageSchema = createInsertSchema(messages).pick({
+export const insertMessageSchema = createInsertSchema(messagesTable).pick({
   senderId: true,
   receiverId: true,
   content: true,
 });
 
 export type InsertMessage = z.infer<typeof insertMessageSchema>;
-export type Message = typeof messages.$inferSelect;
+export type Message = typeof messagesTable.$inferSelect;
