@@ -93,25 +93,13 @@ export function useChat(receiverId: number) {
     }
 
     let ws = connectWebSocket();
-    let reconnectTimeout: NodeJS.Timeout;
-
-    const handleClose = () => {
-      setIsConnected(false);
-      clearTimeout(reconnectTimeout);
-      // Only try to reconnect if component is still mounted
-      reconnectTimeout = setTimeout(() => {
-        ws = connectWebSocket();
-      }, 3000); // Wait 3 seconds before reconnecting
-    };
-
-    ws.addEventListener('close', handleClose);
 
     // Clean up on unmount or user change
     return () => {
-      clearTimeout(reconnectTimeout);
-      ws.removeEventListener('close', handleClose);
-      ws.close();
-      setIsConnected(false);
+      if (ws) {
+        ws.close();
+        setIsConnected(false);
+      }
     };
 
   }, [user?.id, receiverId, toast]);
