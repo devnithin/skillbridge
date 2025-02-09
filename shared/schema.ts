@@ -11,7 +11,6 @@ export const users = pgTable("users", {
   phone: text("phone"),
   avatar: text("avatar"),
   bio: text("bio"),
-  imageUrl: text("image_url"),
 });
 
 export const skills = pgTable("skills", {
