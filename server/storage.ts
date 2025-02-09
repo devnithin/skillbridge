@@ -106,7 +106,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getMessages(userId1: number, userId2: number): Promise<Message[]> {
-    return db
+    console.log(`Getting messages between users ${userId1} and ${userId2}`);
+    const messages = await db
       .select()
       .from(messages)
       .where(
@@ -122,6 +123,9 @@ export class DatabaseStorage implements IStorage {
         )
       )
       .orderBy(asc(messages.createdAt));
+
+    console.log(`Found ${messages.length} messages`);
+    return messages;
   }
 
   async createMessage(message: InsertMessage): Promise<Message> {
@@ -130,16 +134,31 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getConversations(userId: number): Promise<User[]> {
-    // Using raw SQL for the DISTINCT operation since drizzle-orm doesn't support it directly
+    console.log(`Getting conversations for user ${userId}`);
+
+    // Using raw SQL for better control over the query
     const result = await db.execute(sql`
+      WITH conversation_users AS (
+        -- Get all users who have exchanged messages with this user
+        SELECT DISTINCT CASE
+          WHEN m.sender_id = ${userId} THEN m.receiver_id
+          WHEN m.receiver_id = ${userId} THEN m.sender_id
+        END as other_user_id
+        FROM messages m
+        WHERE m.sender_id = ${userId} OR m.receiver_id = ${userId}
+      )
       SELECT DISTINCT u.*
       FROM users u
-      INNER JOIN messages m
-      ON (m.sender_id = u.id AND m.receiver_id = ${userId})
-      OR (m.receiver_id = u.id AND m.sender_id = ${userId})
-      WHERE u.id != ${userId}
+      INNER JOIN conversation_users cu ON u.id = cu.other_user_id
+      ORDER BY (
+        SELECT MAX(created_at)
+        FROM messages m
+        WHERE (m.sender_id = u.id AND m.receiver_id = ${userId})
+        OR (m.receiver_id = u.id AND m.sender_id = ${userId})
+      ) DESC
     `);
 
+    console.log(`Found ${result.rows.length} conversations for user ${userId}`);
     return result.rows as User[];
   }
 }

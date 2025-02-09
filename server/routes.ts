@@ -84,8 +84,16 @@ export function registerRoutes(app: Express): Server {
   // Get conversations
   app.get("/api/conversations", async (req, res) => {
     if (!req.isAuthenticated()) return res.status(403).send("Unauthorized");
-    const conversations = await storage.getConversations(req.user.id);
-    res.json(conversations);
+
+    try {
+      console.log(`Fetching conversations for user ${req.user.id}`);
+      const conversations = await storage.getConversations(req.user.id);
+      console.log(`Found ${conversations.length} conversations for user ${req.user.id}`);
+      res.json(conversations);
+    } catch (error) {
+      console.error("Error fetching conversations:", error);
+      res.status(500).send("Failed to fetch conversations");
+    }
   });
 
   const httpServer = createServer(app);
@@ -99,7 +107,7 @@ export function registerRoutes(app: Express): Server {
     ws.on("message", async (data: string) => {
       try {
         const message = JSON.parse(data);
-        console.log("Received WebSocket message:", message.type);
+        console.log("Received WebSocket message:", message);
 
         if (message.type === "auth") {
           // Close any existing connections for this user
