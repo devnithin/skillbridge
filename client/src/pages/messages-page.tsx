@@ -66,10 +66,10 @@ export default function MessagesPage() {
                     >
                       <Avatar className="h-10 w-10">
                         <AvatarImage src={contact.avatar || undefined} />
-                        <AvatarFallback>{contact.fullName[0]}</AvatarFallback>
+                        <AvatarFallback>{contact.username[0].toUpperCase()}</AvatarFallback>
                       </Avatar>
                       <div className="text-left">
-                        <p className="font-medium">{contact.fullName}</p>
+                        <p className="font-medium">{contact.username}</p>
                         <p className="text-sm text-muted-foreground truncate">
                           {contact.username}
                         </p>
