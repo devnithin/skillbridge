@@ -3,11 +3,10 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { insertSkillSchema, proficiencyLevels, skillCategories, type Skill } from "@shared/schema";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { insertSkillSchema, proficiencyLevels, skillCategories, type Skill } from "@shared/schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import { Loader2, PlusCircle } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import SkillCard from "@/components/skill-card";
@@ -25,7 +24,7 @@ export default function ProfilePage() {
     },
   });
 
-  const { data: skills = [], isLoading: isLoadingSkills } = useQuery({
+  const { data: skills = [], isLoading: isLoadingSkills } = useQuery<Skill[]>({
     queryKey: [`/api/users/${user!.id}/skills`],
   });
 
@@ -55,7 +54,7 @@ export default function ProfilePage() {
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
           <div className="flex items-center gap-6 mb-6">
             <Avatar className="h-24 w-24">
-              <AvatarImage src={user?.avatar} />
+              <AvatarImage src={user?.avatar || undefined} />
               <AvatarFallback>{user?.fullName[0]}</AvatarFallback>
             </Avatar>
             <div>
@@ -94,7 +93,7 @@ export default function ProfilePage() {
               <Label>Category</Label>
               <Select
                 value={form.watch("category")}
-                onValueChange={(value) => form.setValue("category", value)}
+                onValueChange={(value: typeof skillCategories[number]) => form.setValue("category", value)}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -125,7 +124,7 @@ export default function ProfilePage() {
               <Label>Proficiency</Label>
               <Select
                 value={form.watch("proficiency")}
-                onValueChange={(value) => form.setValue("proficiency", value)}
+                onValueChange={(value: typeof proficiencyLevels[number]) => form.setValue("proficiency", value)}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -159,7 +158,7 @@ export default function ProfilePage() {
           )}
 
           <div className="grid gap-4">
-            {skills.map((skill: Skill) => (
+            {skills.map((skill) => (
               <SkillCard
                 key={skill.id}
                 skill={skill}

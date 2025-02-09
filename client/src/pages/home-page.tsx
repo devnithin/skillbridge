@@ -11,15 +11,16 @@ import { Loader2, Search } from "lucide-react";
 export default function HomePage() {
   const [searchParams, setSearchParams] = useState({
     skill: "",
-    category: "",
+    category: skillCategories[0],
     isTeaching: true,
   });
 
-  const { data: users, isLoading } = useQuery({
+  const { data: users = [], isLoading } = useQuery({
     queryKey: ["/api/search", searchParams],
     queryFn: async () => {
       const params = new URLSearchParams({
-        ...searchParams,
+        skill: searchParams.skill,
+        ...(searchParams.category && { category: searchParams.category }),
         isTeaching: searchParams.isTeaching.toString(),
       });
       const res = await fetch(`/api/search?${params}`);
@@ -50,13 +51,14 @@ export default function HomePage() {
               <Label>Category</Label>
               <Select
                 value={searchParams.category}
-                onValueChange={(value) => setSearchParams((p) => ({ ...p, category: value }))}
+                onValueChange={(value: typeof skillCategories[number]) =>
+                  setSearchParams((p) => ({ ...p, category: value }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="All Categories" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Categories</SelectItem>
                   {skillCategories.map((category) => (
                     <SelectItem key={category} value={category}>
                       {category}
