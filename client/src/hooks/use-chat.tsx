@@ -36,7 +36,8 @@ export function useChat(receiverId: number) {
       if (!user) return;
       
       const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-      const wsUrl = `${protocol}//${window.location.host}/ws`;
+      const host = window.location.hostname === 'localhost' ? 'localhost:5000' : window.location.host;
+      const wsUrl = `${protocol}//${host}/ws`;
       const ws = new WebSocket(wsUrl);
 
       ws.onopen = () => {
