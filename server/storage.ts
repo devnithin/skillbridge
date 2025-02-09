@@ -139,20 +139,20 @@ export class DatabaseStorage implements IStorage {
     // Using raw SQL for better control over the query
     const result = await db.execute(sql`
       WITH conversation_users AS (
-        -- Get all users who have exchanged messages with this user
-        SELECT DISTINCT 
-          CASE
-            WHEN m.sender_id = ${userId} THEN m.receiver_id
-            WHEN m.receiver_id = ${userId} THEN m.sender_id
-          END as other_user_id,
-          MAX(m.created_at) as last_message_at
-        FROM messages m
-        WHERE m.sender_id = ${userId} OR m.receiver_id = ${userId}
-        GROUP BY 
-          CASE
-            WHEN m.sender_id = ${userId} THEN m.receiver_id
-            WHEN m.receiver_id = ${userId} THEN m.sender_id
-          END
+        SELECT 
+          other_user_id,
+          MAX(created_at) as last_message_at
+        FROM (
+          SELECT 
+            CASE
+              WHEN sender_id = ${userId} THEN receiver_id
+              ELSE sender_id
+            END as other_user_id,
+            created_at
+          FROM messages
+          WHERE sender_id = ${userId} OR receiver_id = ${userId}
+        ) AS user_messages
+        GROUP BY other_user_id
       )
       SELECT DISTINCT u.*, cu.last_message_at
       FROM users u
