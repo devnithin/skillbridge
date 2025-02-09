@@ -57,9 +57,26 @@ export default function ProfilePage() {
               <AvatarImage src={user?.avatar || undefined} />
               <AvatarFallback>{user?.fullName[0]}</AvatarFallback>
             </Avatar>
-            <div>
+            <div className="flex-1">
               <h1 className="text-2xl font-bold text-[#283E4A]">{user?.fullName}</h1>
-              <p className="text-muted-foreground">{user?.bio || "No bio yet"}</p>
+              <div className="relative group">
+                <textarea 
+                  className="w-full bg-transparent text-muted-foreground resize-none focus:outline-none focus:ring-1 focus:ring-primary rounded p-1"
+                  defaultValue={user?.bio || ""}
+                  placeholder="Add a bio..."
+                  rows={2}
+                  onBlur={async (e) => {
+                    if (e.target.value !== user?.bio) {
+                      await fetch(`/api/users/${user!.id}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ bio: e.target.value })
+                      });
+                      queryClient.invalidateQueries({ queryKey: ['/api/user'] });
+                    }
+                  }}
+                />
+              </div>
             </div>
           </div>
 
