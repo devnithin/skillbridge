@@ -27,18 +27,18 @@ export default function AuthPage() {
 
   return (
     <div className="min-h-screen flex bg-gradient-to-br from-primary/5 to-primary/10">
-      <div className="flex-1 flex items-center justify-center p-4">
-        <Card className="w-[400px] shadow-xl border-primary/10">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+        <Card className="w-full max-w-sm sm:max-w-md shadow-xl border-primary/10">
           <Tabs defaultValue="login">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-2 h-11 sm:h-12">
               <TabsTrigger value="login">Login</TabsTrigger>
               <TabsTrigger value="register">Register</TabsTrigger>
             </TabsList>
 
             <TabsContent value="login">
-              <CardContent className="pt-6">
+              <CardContent className="pt-6 px-6 sm:px-8">
                 <form onSubmit={loginForm.handleSubmit((data) => loginMutation.mutate(data))}>
-                  <div className="space-y-4">
+                  <div className="space-y-4 sm:space-y-5">
                     <div>
                       <Label htmlFor="login-username">Username</Label>
                       <Input id="login-username" {...loginForm.register("username")} />
@@ -47,7 +47,7 @@ export default function AuthPage() {
                       <Label htmlFor="login-password">Password</Label>
                       <Input id="login-password" type="password" {...loginForm.register("password")} />
                     </div>
-                    <Button type="submit" className="w-full" disabled={loginMutation.isPending}>
+                    <Button type="submit" className="w-full h-11 sm:h-12 text-base" disabled={loginMutation.isPending}>
                       {loginMutation.isPending ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
                       ) : (
@@ -60,9 +60,9 @@ export default function AuthPage() {
             </TabsContent>
 
             <TabsContent value="register">
-              <CardContent className="pt-6">
+              <CardContent className="pt-6 px-6 sm:px-8">
                 <form onSubmit={registerForm.handleSubmit((data) => registerMutation.mutate(data))}>
-                  <div className="space-y-4">
+                  <div className="space-y-4 sm:space-y-5">
                     <div>
                       <Label htmlFor="register-username">Username</Label>
                       <Input id="register-username" {...registerForm.register("username")} />
@@ -87,7 +87,7 @@ export default function AuthPage() {
                       <Label htmlFor="register-phone">Phone (optional)</Label>
                       <Input id="register-phone" {...registerForm.register("phone")} />
                     </div>
-                    <Button type="submit" className="w-full" disabled={registerMutation.isPending}>
+                    <Button type="submit" className="w-full h-11 sm:h-12 text-base" disabled={registerMutation.isPending}>
                       {registerMutation.isPending ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
                       ) : (
@@ -102,14 +102,14 @@ export default function AuthPage() {
         </Card>
       </div>
 
-      <div className="hidden lg:flex flex-1 bg-[#0077B5] text-white p-12 items-center">
-        <div>
-          <h1 className="text-4xl font-bold mb-6">Welcome to SkillBridge</h1>
-          <p className="text-lg mb-8">
+      <div className="hidden lg:flex flex-1 bg-[#0077B5] text-white p-8 xl:p-12 items-center">
+        <div className="max-w-lg">
+          <h1 className="text-3xl xl:text-4xl font-bold mb-4 xl:mb-6">Welcome to SkillBridge</h1>
+          <p className="text-base xl:text-lg mb-6 xl:mb-8">
             Connect with others to learn and share skills. Join our community of lifelong learners
             today.
           </p>
-          <ul className="space-y-4">
+          <ul className="space-y-3 xl:space-y-4">
             <li className="flex items-center gap-2">
               <span className="text-[#7FC15E]">✓</span> Find mentors in your field
             </li>
